@@ -1,0 +1,17 @@
+# ~/.zshrc.local — machine-specific config, NEVER committed.
+# Copy to ~/.zshrc.local and fill in what you need.
+
+# --- Secrets / API keys ---
+# export GITHUB_TOKEN=ghp_xxxxxxxxxxxx
+# export OPENAI_API_KEY=sk-xxxxxxxxxxxx
+
+# --- Proxy ---
+# export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 all_proxy=socks5://127.0.0.1:7890
+# export no_proxy=localhost,127.0.0.1,::1
+
+# --- Extra PATH ---
+# export PATH="$HOME/.bun/bin:$PATH"
+
+# --- Personal aliases ---
+# alias hstudio="herdr --remote studio"
+# alias pu="npx playwright test --ui"

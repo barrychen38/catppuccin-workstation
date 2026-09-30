@@ -1,0 +1,92 @@
+# Catppuccin Workstation — zsh config
+# Machine-specific config (secrets, proxies, work aliases) lives in ~/.zshrc.local,
+# which is never committed. See zshrc.local.example.
+
+# PATH
+export PATH="/opt/homebrew/opt/node@24/bin:/opt/homebrew/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+
+# Completion
+fpath=(/opt/homebrew/share/zsh/site-functions $fpath)
+autoload -Uz compinit
+mkdir -p "$HOME/.cache/zsh"
+compinit -d "$HOME/.cache/zsh/zcompdump"
+
+# Shell integrations
+[[ -r /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+[[ -o interactive && -t 0 && -t 1 ]] && command -v fzf >/dev/null 2>&1 && source <(fzf --zsh)
+[[ -o interactive && -r /opt/homebrew/opt/fzf-tab/share/fzf-tab/fzf-tab.zsh ]] && source /opt/homebrew/opt/fzf-tab/share/fzf-tab/fzf-tab.zsh
+command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
+command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
+
+# Keep zsh-syntax-highlighting after widgets and prompt integrations.
+[[ -r /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] && source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# Aliases
+alias brew.daily='brew doctor && brew update && brew upgrade && brew cleanup'
+alias v="nvim"
+alias vi="nvim"
+alias vim="nvim"
+alias ghostty="/Applications/Ghostty.app/Contents/MacOS/ghostty"
+alias kp='f() { lsof -ti :$1 | xargs -r kill -9; }; f'
+alias lg='lazygit'
+alias ls='eza -l --git --icons=auto'
+alias grep='rg'
+alias cat='bat'
+
+# Git aliases
+alias gsb='git status --short --branch'
+alias gs='git status'
+alias gl='git pull'
+alias gp='git push'
+alias gf='git fetch'
+alias grb='git rebase'
+alias grba='git rebase --abort'
+alias gco='git checkout'
+alias gcb='git checkout -b'
+alias gb='git branch'
+alias gbD='git branch --delete --force'
+alias gm='git merge'
+alias gcam='git commit --all --message'
+alias gbs='git bisect'
+alias gsh='git show'
+alias gcm='git switch $(git_main_branch)'
+alias ga='git add'
+
+function git_main_branch() {
+  command git rev-parse --git-dir &>/dev/null || return
+
+  local remote ref
+  for ref in refs/{heads,remotes/{origin,upstream}}/{main,trunk,mainline,default,stable,master}; do
+    if command git show-ref -q --verify "$ref"; then
+      echo "${ref:t}"
+      return 0
+    fi
+  done
+
+  for remote in origin upstream; do
+    ref="$(command git rev-parse --abbrev-ref "$remote/HEAD" 2>/dev/null)"
+    if [[ "$ref" == "$remote"/* ]]; then
+      echo "${ref#"$remote"/}"
+      return 0
+    fi
+  done
+
+  echo master
+  return 1
+}
+
+# yazi: cd to the directory you browsed to on quit
+function y() {
+  local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+  command yazi "$@" --cwd-file="$tmp"
+  IFS= read -r -d "" cwd < "$tmp"
+  [[ "$cwd" != "$PWD" && -d "$cwd" ]] && builtin cd -- "$cwd"
+  rm -f -- "$tmp"
+}
+
+export LANG=en_US.UTF-8
+export TERM=xterm-256color
+
+# Machine-specific config (secrets, proxy, work aliases)
+[[ -r "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
