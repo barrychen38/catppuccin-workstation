@@ -50,6 +50,24 @@ Everything is **incremental** — nothing of yours gets thrown away:
 
 The setup targets zsh (the macOS default). If your login shell is something else, the installer will tell you how to switch (`chsh -s /bin/zsh`).
 
+## Optional productivity tools
+
+These tools are not required by the theme, but can make everyday shell work faster. They are optional and are not installed or initialized by this repository's installer:
+
+| Tool | Use |
+| --- | --- |
+| [fzf-tab](https://github.com/Aloxaf/fzf-tab) | Select zsh Tab-completion candidates with fzf |
+| [zoxide](https://github.com/ajeetdsouza/zoxide) | Jump to frequently used directories with `z` |
+| [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions) | Suggest commands from shell history as you type |
+
+Install them with Homebrew (`fzf` is required by fzf-tab and is already included in this repository's Brewfile):
+
+```bash
+brew install fzf fzf-tab zoxide zsh-autosuggestions
+```
+
+Installation alone does not enable their shell integrations. Follow the linked setup instructions in your own `~/.zshrc`. Load fzf-tab after `compinit` and before zsh-autosuggestions; keep this repository's managed block, which loads syntax highlighting, after those plugins. This repository does not manage these integrations or your command aliases.
+
 ## Tools & links
 
 - Theme: [Catppuccin](https://catppuccin.com) · [catppuccin/delta](https://github.com/catppuccin/delta) · [catppuccin/bat](https://github.com/catppuccin/bat) · [catppuccin/yazi](https://github.com/catppuccin/yazi)

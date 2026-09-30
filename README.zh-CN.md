@@ -50,6 +50,24 @@ cd catppuccin-workstation && ./install.sh
 
 本套配置面向 zsh（macOS 默认 shell）。如果你的登录 shell 不是 zsh，安装器会提示切换方法（`chsh -s /bin/zsh`）。
 
+## 可选效率工具
+
+以下工具不是主题依赖，但可以搭配使用，提高日常终端操作效率。它们按需安装，本仓库的安装脚本不会安装或初始化它们：
+
+| 工具 | 用途 |
+| --- | --- |
+| [fzf-tab](https://github.com/Aloxaf/fzf-tab) | 用 fzf 筛选 zsh 的 Tab 补全候选项 |
+| [zoxide](https://github.com/ajeetdsouza/zoxide) | 用 `z` 快速跳转到常用目录 |
+| [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions) | 输入时根据历史记录提示命令 |
+
+通过 Homebrew 安装（fzf-tab 依赖 `fzf`，本仓库的 Brewfile 已包含 `fzf`）：
+
+```bash
+brew install fzf fzf-tab zoxide zsh-autosuggestions
+```
+
+仅安装 package 不会启用 shell 集成，需要参考上述项目的说明，在自己的 `~/.zshrc` 中配置。fzf-tab 应在 `compinit` 之后、zsh-autosuggestions 之前加载；本仓库加载语法高亮的受管理块应放在这些插件之后。本仓库不管理这些集成或用户的命令 alias。
+
 ## 工具与链接
 
 - 主题：[Catppuccin](https://catppuccin.com) · [catppuccin/delta](https://github.com/catppuccin/delta) · [catppuccin/bat](https://github.com/catppuccin/bat) · [catppuccin/yazi](https://github.com/catppuccin/yazi)
