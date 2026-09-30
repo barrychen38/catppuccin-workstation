@@ -21,7 +21,7 @@ keybind = alt+backspace=text:\x1b\x7f
 window-width = 180
 window-height = 64
 confirm-close-surface = false
-window-title-font-family = Maple Mono Italic
+window-title-font-family = Maple Mono Normal NL NF
 keybind = cmd+shift+r=reload_config
 scrollback-limit = 2500000
 macos-option-as-alt = left

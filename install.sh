@@ -31,16 +31,22 @@ fi
 # --- 1. Locate the repo --------------------------------------------------------
 # When piped from curl, this script runs without the repo next to it:
 # clone to ~/.catppuccin-workstation and re-exec from there.
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-if [[ ! -d "$SCRIPT_DIR/config" ]]; then
+SCRIPT_DIR=""
+if [[ -n "${BASH_SOURCE[0]:-}" ]]; then
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+fi
+if [[ -z "$SCRIPT_DIR" || ! -f "$SCRIPT_DIR/Brewfile" || ! -f "$SCRIPT_DIR/config/zsh/zshrc" ]]; then
   info "Fetching the repository..."
   if [[ -d "$CLONE_DIR/.git" ]]; then
     git -C "$CLONE_DIR" pull --ff-only
   else
-    rm -rf "$CLONE_DIR"
+    if [[ -e "$CLONE_DIR" || -L "$CLONE_DIR" ]]; then
+      echo "Cannot clone into existing non-repository path: $CLONE_DIR" >&2
+      exit 1
+    fi
     git clone --depth 1 "$REPO_URL" "$CLONE_DIR"
   fi
-  exec bash "$CLONE_DIR/install.sh" "${1:-}"
+  exec bash "$CLONE_DIR/install.sh" "$@"
 fi
 REPO_DIR="$SCRIPT_DIR"
 
@@ -61,7 +67,7 @@ BACKUP_DIR="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 BACKED_UP=0
 
 backup() {
-  if [[ -e "$1" ]]; then
+  if [[ -e "$1" || -L "$1" ]]; then
     mkdir -p "$BACKUP_DIR/$(dirname "${1#"$HOME"/}")"
     mv "$1" "$BACKUP_DIR/${1#"$HOME"/}"
     BACKED_UP=1
@@ -93,18 +99,37 @@ install_owned_dir() {
 # Re-running always refreshes the block in place; the rest of the file is kept.
 # $2 is either a file path or a literal string.
 set_managed_block() {
-  local file=$1 content=$2
+  local file=$1 content=$2 target=$1 link
   mkdir -p "$(dirname "$file")"
   touch "$file"
+  # Replace the target atomically without detaching a user's dotfiles symlink.
+  while [[ -L "$target" ]]; do
+    link="$(readlink "$target")"
+    if [[ "$link" == /* ]]; then
+      target="$link"
+    else
+      target="$(dirname "$target")/$link"
+    fi
+  done
   local tmp
-  tmp="$(mktemp)"
-  awk '/^# >>> catppuccin-workstation >>>$/{f=1} !f{print} /^# <<< catppuccin-workstation <<<$/{f=0}' "$file" > "$tmp"
+  tmp="$(mktemp "$(dirname "$target")/.catppuccin-workstation.XXXXXX")"
+  cp -p "$target" "$tmp"
+  if ! awk '
+    /^# >>> catppuccin-workstation >>>$/ { if (managed) exit 1; managed=1; next }
+    /^# <<< catppuccin-workstation <<<$/{ if (!managed) exit 1; managed=0; next }
+    !managed { print }
+    END { if (managed) exit 1 }
+  ' "$target" > "$tmp"; then
+    rm -f "$tmp"
+    echo "Malformed managed block in $file; leaving it unchanged." >&2
+    return 1
+  fi
   {
     echo "# >>> $MANAGED >>>"
     if [[ -f "$content" ]]; then cat "$content"; else printf '%s\n' "$content"; fi
     echo "# <<< $MANAGED <<<"
   } >> "$tmp"
-  mv "$tmp" "$file"
+  mv "$tmp" "$target"
 }
 
 # --- 4. zsh: snippet + managed block in ~/.zshrc ---------------------------------
@@ -116,16 +141,19 @@ USER_SHELL="$(dscl . -read "$HOME" UserShell 2>/dev/null | awk '{print $2}' || t
 
 # --- 5. Ghostty: managed block in the config --------------------------------------
 info "Installing Ghostty settings (incremental)..."
-set_managed_block "$HOME/.config/ghostty/config" "$REPO_DIR/config/ghostty/config"
-# Keep a single source of truth: if the macOS Application Support config also
-# exists, our ~/.config block comes after it only if sourced — instead, move it
-# aside so ~/.config/ghostty/config is the only active file.
-if ls "$HOME/Library/Application Support/com.mitchellh.ghostty/"config* >/dev/null 2>&1; then
-  info "Moving Ghostty's Application Support config aside (backed up)..."
-  while IFS= read -r f; do
-    backup "$f"
-  done < <(ls "$HOME/Library/Application Support/com.mitchellh.ghostty/"config* 2>/dev/null)
-fi
+GHOSTTY_CONFIG_DIR="${XDG_CONFIG_HOME:-"$HOME/.config"}/ghostty"
+GHOSTTY_CFG="$GHOSTTY_CONFIG_DIR/config"
+# macOS configs load after XDG configs; config.ghostty takes precedence over
+# the legacy filename within each location. Keep the user's files in place.
+for config_file in \
+  "$GHOSTTY_CONFIG_DIR/config.ghostty" \
+  "$HOME/Library/Application Support/com.mitchellh.ghostty/config" \
+  "$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty"; do
+  if [[ -e "$config_file" || -L "$config_file" ]]; then
+    GHOSTTY_CFG="$config_file"
+  fi
+done
+set_managed_block "$GHOSTTY_CFG" "$REPO_DIR/config/ghostty/config"
 
 # --- 6. Font -----------------------------------------------------------------------
 info "Installing Source Han Sans SC font..."
@@ -142,13 +170,16 @@ info "Installing bat config (incremental)..."
 BAT_CFG="$HOME/.config/bat/config"
 mkdir -p "$(dirname "$BAT_CFG")"
 touch "$BAT_CFG"
-grep -q -- '--theme=' "$BAT_CFG" || echo '--theme="Catppuccin Macchiato"' >> "$BAT_CFG"
-grep -q -- '--style=' "$BAT_CFG" || echo '--style="numbers,changes,header"' >> "$BAT_CFG"
+grep -Eq '^[[:space:]]*--theme([=[:space:]]|$)' "$BAT_CFG" || echo '--theme="Catppuccin Macchiato"' >> "$BAT_CFG"
+grep -Eq '^[[:space:]]*--style([=[:space:]]|$)' "$BAT_CFG" || echo '--style="numbers,changes,header"' >> "$BAT_CFG"
 
 # --- 8. git + delta (incremental via `git config`) ----------------------------------
 info "Installing delta settings into ~/.gitconfig (incremental)..."
-install_owned_file "$REPO_DIR/config/git/catppuccin.gitconfig" "$HOME/.config/git/catppuccin.gitconfig"
-git config --global include.path "$HOME/.config/git/catppuccin.gitconfig"
+GIT_THEME_CFG="$HOME/.config/git/catppuccin.gitconfig"
+install_owned_file "$REPO_DIR/config/git/catppuccin.gitconfig" "$GIT_THEME_CFG"
+if ! git config --global --get-all include.path | grep -Fx -- "$GIT_THEME_CFG" >/dev/null; then
+  git config --global --add include.path "$GIT_THEME_CFG"
+fi
 git config --global core.pager delta
 git config --global interactive.diffFilter 'delta --color-only'
 git config --global delta.navigate true

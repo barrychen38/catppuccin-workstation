@@ -4,8 +4,9 @@
 
 一套穿同款配色的 macOS 终端工作站——[Catppuccin Macchiato](https://catppuccin.com)，从终端模拟器到文件管理器，一个主题贯穿到底。
 
-<!-- TODO: 替换为真实终端截图 -->
-![terminal](docs/screenshot.png)
+> 当前仅在 macOS 上验证，适合喜欢深色主题的朋友。其他操作系统或浅色主题不保证兼容。
+
+![Ghostty 中的 Catppuccin Macchiato 工作站：左侧 Neovim，右上 lazygit，右下 Starship 与 eza](docs/screenshot.png)
 
 ## 包含什么
 
@@ -13,13 +14,15 @@
 | --- | --- | --- |
 | 终端 | [Ghostty](https://ghostty.org) | Catppuccin Macchiato，轻毛玻璃，`cmd+shift+r` 热重载 |
 | 提示符 | [starship](https://starship.rs) | 极简 format：目录、git 分支、主机名（仅 SSH） |
-| Shell | zsh | [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)、[zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)、[fzf](https://github.com/junegunn/fzf)、[fzf-tab](https://github.com/Aloxaf/fzf-tab)、[zoxide](https://github.com/ajeetdsouza/zoxide)，无 Oh My Zsh |
-| 命令平替 | [eza](https://github.com/eza-community/eza) / [bat](https://github.com/sharkdp/bat) / [ripgrep](https://github.com/BurntSushi/ripgrep) / zoxide | `ls`、`cat`、`grep`、`cd` 的升级 |
+| Shell | zsh | [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)，仅加载提示符与语法高亮 |
+| 命令行 | [eza](https://github.com/eza-community/eza) / [bat](https://github.com/sharkdp/bat) / [ripgrep](https://github.com/BurntSushi/ripgrep) / [fzf](https://github.com/junegunn/fzf) | 文件展示、主题高亮及编辑器搜索依赖；不设置 alias |
 | Git | [delta](https://github.com/dandavison/delta) + [lazygit](https://github.com/jesseduffield/lazygit) | 处处带主题的 diff，lazygit 的 diff 也走 delta |
 | 编辑器 | [Neovim](https://neovim.io) + [LazyVim](https://www.lazyvim.org) | 原版 LazyVim + Catppuccin 配色 |
-| 文件 | [yazi](https://github.com/sxyazi/yazi) | Catppuccin flavor，`y()` 退出时 cd 到浏览目录 |
+| 文件 | [yazi](https://github.com/sxyazi/yazi) | Catppuccin flavor |
 
-字体：[Maple Mono NF](https://font.subf.dev/en/)（Homebrew 安装）+ [思源黑体](https://github.com/adobe-fonts/source-han-sans)（随仓库分发，SIL OFL 1.1）。
+字体：[Maple Mono Normal NL NF](https://font.subf.dev/en/)（Homebrew 安装）+ [思源黑体](https://github.com/adobe-fonts/source-han-sans)（随仓库分发，SIL OFL 1.1）。
+
+仓库提供主题配置及必要的加载设置；命令 alias、补全、目录跳转等由用户自己的 shell 配置管理。
 
 ## 安装
 
@@ -39,8 +42,8 @@ cd catppuccin-workstation && ./install.sh
 安装全程**增量更新**，不动你自己的东西：
 
 - `~/.zshrc` 保留原内容，只在末尾追加一个受管理的小块，source 我们的片段（`~/.config/catppuccin-workstation/zshrc`）
-- `~/.gitconfig` 保留原内容，delta 配置用 `git config --global` 逐项合入
-- Ghostty 配置追加受管理块（后出现的配置生效）
+- `~/.gitconfig` 保留原内容和已有 include；主题 include 只添加一次，delta 配置用 `git config --global` 逐项合入
+- Ghostty 在现有配置中维护受管理块；优先使用 Application Support 目录，同一目录优先使用 `config.ghostty`，再使用 `config`，保留原文件及用户设置
 - bat 配置只在缺主题行时补上
 - 完全由我们接管的全量文件（starship.toml、lazygit、nvim、yazi flavor）替换前会备份到 `~/.dotfiles-backup/<时间戳>/`
 - 安装器还会：Homebrew 装依赖（`--no-brew` 跳过）、装思源黑体、装 bat 的 Catppuccin 主题、无头引导 Neovim 插件
@@ -51,8 +54,8 @@ cd catppuccin-workstation && ./install.sh
 
 - 主题：[Catppuccin](https://catppuccin.com) · [catppuccin/delta](https://github.com/catppuccin/delta) · [catppuccin/bat](https://github.com/catppuccin/bat) · [catppuccin/yazi](https://github.com/catppuccin/yazi)
 - 终端：[Ghostty](https://ghostty.org)
-- 提示符与 Shell：[starship](https://starship.rs) · [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions) · [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting) · [fzf](https://github.com/junegunn/fzf) · [fzf-tab](https://github.com/Aloxaf/fzf-tab) · [zoxide](https://github.com/ajeetdsouza/zoxide)
-- 命令行：[eza](https://github.com/eza-community/eza) · [bat](https://github.com/sharkdp/bat) · [ripgrep](https://github.com/BurntSushi/ripgrep)
+- 提示符与 Shell：[starship](https://starship.rs) · [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)
+- 命令行：[eza](https://github.com/eza-community/eza) · [bat](https://github.com/sharkdp/bat) · [ripgrep](https://github.com/BurntSushi/ripgrep) · [fzf](https://github.com/junegunn/fzf)
 - Git：[git-delta](https://github.com/dandavison/delta) · [lazygit](https://github.com/jesseduffield/lazygit)
 - 编辑器：[Neovim](https://neovim.io) · [LazyVim](https://www.lazyvim.org)
 - 文件：[yazi](https://github.com/sxyazi/yazi)
@@ -61,6 +64,18 @@ cd catppuccin-workstation && ./install.sh
 ## 回滚
 
 被替换的文件都移到了 `~/.dotfiles-backup/<时间戳>/`；zsh 与 gitconfig 的改动，删掉 `~/.zshrc` 里 `# >>> catppuccin-workstation >>>` 块、unset 掉 delta 相关 key 即可撤销。
+
+删除主题 include 时，保留其他 include：
+
+```bash
+git config --global --fixed-value --unset-all include.path "$HOME/.config/git/catppuccin.gitconfig"
+```
+
+Ghostty 的改动可通过删除实际安装位置中的受管理块撤销。
+
+## 验证
+
+运行 `python3 -B -m unittest discover -s tests -v` 执行安装器回归检查。测试使用临时用户目录，模拟依赖安装、下载和插件引导，不会安装到当前账号。
 
 ## 许可
 
