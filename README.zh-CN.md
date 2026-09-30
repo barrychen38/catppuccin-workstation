@@ -13,14 +13,13 @@
 | --- | --- | --- |
 | 终端 | [Ghostty](https://ghostty.org) | Catppuccin Macchiato，轻毛玻璃，`cmd+shift+r` 热重载 |
 | 提示符 | [starship](https://starship.rs) | 极简 format：目录、git 分支、主机名（仅 SSH） |
-| Shell | zsh + autosuggestions / syntax-highlighting / fzf-tab | 无 Oh My Zsh |
-| 命令平替 | eza / bat / ripgrep / zoxide | `ls`、`cat`、`grep`、`cd` 的升级 |
+| Shell | zsh | [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)、[zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)、[fzf](https://github.com/junegunn/fzf)、[fzf-tab](https://github.com/Aloxaf/fzf-tab)、[zoxide](https://github.com/ajeetdsouza/zoxide)，无 Oh My Zsh |
+| 命令平替 | [eza](https://github.com/eza-community/eza) / [bat](https://github.com/sharkdp/bat) / [ripgrep](https://github.com/BurntSushi/ripgrep) / zoxide | `ls`、`cat`、`grep`、`cd` 的升级 |
 | Git | [delta](https://github.com/dandavison/delta) + [lazygit](https://github.com/jesseduffield/lazygit) | 处处带主题的 diff，lazygit 的 diff 也走 delta |
-| 编辑器 | Neovim + [LazyVim](https://www.lazyvim.org) | Catppuccin 配色，插件版本锁定 |
+| 编辑器 | [Neovim](https://neovim.io) + [LazyVim](https://www.lazyvim.org) | 原版 LazyVim + Catppuccin 配色 |
 | 文件 | [yazi](https://github.com/sxyazi/yazi) | Catppuccin flavor，`y()` 退出时 cd 到浏览目录 |
-| Agent 工作台 | [Herdr](https://herdr.dev) | 只装配置；二进制去 herdr.dev 安装 |
 
-字体：Maple Mono NF（Homebrew 安装）+ 思源黑体（随仓库分发，SIL OFL 1.1）。
+字体：[Maple Mono NF](https://font.subf.dev/en/)（Homebrew 安装）+ [思源黑体](https://github.com/adobe-fonts/source-han-sans)（随仓库分发，SIL OFL 1.1）。
 
 ## 安装
 
@@ -37,24 +36,31 @@ git clone https://github.com/barrychen38/catppuccin-workstation
 cd catppuccin-workstation && ./install.sh
 ```
 
-安装器会：
+安装全程**增量更新**，不动你自己的东西：
 
-1. 用 Homebrew 装依赖（`--no-brew` 跳过）
-2. 把现有配置备份到 `~/.dotfiles-backup/<时间戳>/`
-3. 安装全部配置（Ghostty、zsh、starship、bat、git、lazygit、nvim、yazi、herdr）和思源黑体
-4. 安装 bat 的 Catppuccin 主题
-5. 无头引导 Neovim 插件
-6. 生成 `~/.zshrc.local`，放你的密钥、代理和工作别名
+- `~/.zshrc` 保留原内容，只在末尾追加一个受管理的小块，source 我们的片段（`~/.config/catppuccin-workstation/zshrc`）
+- `~/.gitconfig` 保留原内容，delta 配置用 `git config --global` 逐项合入
+- Ghostty 配置追加受管理块（后出现的配置生效）
+- bat 配置只在缺主题行时补上
+- 完全由我们接管的全量文件（starship.toml、lazygit、nvim、yazi flavor）替换前会备份到 `~/.dotfiles-backup/<时间戳>/`
+- 安装器还会：Homebrew 装依赖（`--no-brew` 跳过）、装思源黑体、装 bat 的 Catppuccin 主题、无头引导 Neovim 插件
 
-装完记得：设置 git 身份（`git config --global user.name/email`），再开一个新终端窗口。
+本套配置面向 zsh（macOS 默认 shell）。如果你的登录 shell 不是 zsh，安装器会提示切换方法（`chsh -s /bin/zsh`）。
 
-## 刻意不收进来的东西
+## 工具与链接
 
-密钥、代理、个人别名永远不会进这个仓库。它们放在 `~/.zshrc.local`，由仓库的 `~/.zshrc` 在末尾加载。模板见 `config/zsh/zshrc.local.example`。
+- 主题：[Catppuccin](https://catppuccin.com) · [catppuccin/delta](https://github.com/catppuccin/delta) · [catppuccin/bat](https://github.com/catppuccin/bat) · [catppuccin/yazi](https://github.com/catppuccin/yazi)
+- 终端：[Ghostty](https://ghostty.org)
+- 提示符与 Shell：[starship](https://starship.rs) · [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions) · [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting) · [fzf](https://github.com/junegunn/fzf) · [fzf-tab](https://github.com/Aloxaf/fzf-tab) · [zoxide](https://github.com/ajeetdsouza/zoxide)
+- 命令行：[eza](https://github.com/eza-community/eza) · [bat](https://github.com/sharkdp/bat) · [ripgrep](https://github.com/BurntSushi/ripgrep)
+- Git：[git-delta](https://github.com/dandavison/delta) · [lazygit](https://github.com/jesseduffield/lazygit)
+- 编辑器：[Neovim](https://neovim.io) · [LazyVim](https://www.lazyvim.org)
+- 文件：[yazi](https://github.com/sxyazi/yazi)
+- 字体：[Maple Mono](https://font.subf.dev/en/) · [思源黑体](https://github.com/adobe-fonts/source-han-sans)
 
 ## 回滚
 
-每次安装都会把被替换的文件移到 `~/.dotfiles-backup/<时间戳>/`，想撤销就拷回去。
+被替换的文件都移到了 `~/.dotfiles-backup/<时间戳>/`；zsh 与 gitconfig 的改动，删掉 `~/.zshrc` 里 `# >>> catppuccin-workstation >>>` 块、unset 掉 delta 相关 key 即可撤销。
 
 ## 许可
 

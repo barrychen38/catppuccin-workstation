@@ -1,16 +1,13 @@
-# Catppuccin Workstation — zsh config
-# Machine-specific config (secrets, proxies, work aliases) lives in ~/.zshrc.local,
-# which is never committed. See zshrc.local.example.
+# Catppuccin Workstation — zsh integrations.
+# Sourced from ~/.zshrc via a managed block appended by install.sh.
+# Only adds tool integrations and aliases; your own PATH/env stay in ~/.zshrc.
 
-# PATH
-export PATH="/opt/homebrew/opt/node@24/bin:/opt/homebrew/bin:$PATH"
-export PATH="$HOME/.local/bin:$PATH"
-
-# Completion
-fpath=(/opt/homebrew/share/zsh/site-functions $fpath)
-autoload -Uz compinit
-mkdir -p "$HOME/.cache/zsh"
-compinit -d "$HOME/.cache/zsh/zcompdump"
+# Completion (only if not already initialized by the user's own setup)
+if ! command -v compdef >/dev/null 2>&1; then
+  autoload -Uz compinit
+  mkdir -p "$HOME/.cache/zsh"
+  compinit -d "$HOME/.cache/zsh/zcompdump"
+fi
 
 # Shell integrations
 [[ -r /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
@@ -22,13 +19,11 @@ command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
 # Keep zsh-syntax-highlighting after widgets and prompt integrations.
 [[ -r /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] && source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
-# Aliases
-alias brew.daily='brew doctor && brew update && brew upgrade && brew cleanup'
+# Aliases for the tools in this setup
 alias v="nvim"
 alias vi="nvim"
 alias vim="nvim"
 alias ghostty="/Applications/Ghostty.app/Contents/MacOS/ghostty"
-alias kp='f() { lsof -ti :$1 | xargs -r kill -9; }; f'
 alias lg='lazygit'
 alias ls='eza -l --git --icons=auto'
 alias grep='rg'
@@ -84,9 +79,3 @@ function y() {
   [[ "$cwd" != "$PWD" && -d "$cwd" ]] && builtin cd -- "$cwd"
   rm -f -- "$tmp"
 }
-
-export LANG=en_US.UTF-8
-export TERM=xterm-256color
-
-# Machine-specific config (secrets, proxy, work aliases)
-[[ -r "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"

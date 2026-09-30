@@ -1,33 +1,14 @@
-# Catppuccin Workstation — git config template
-# After install: set your real name and email in [user].
+# Catppuccin Workstation — delta settings for git.
+# Reference copy: install.sh applies these keys incrementally to your
+# ~/.gitconfig with `git config --global`, leaving the rest untouched.
 
 [include]
     path = ~/.config/git/catppuccin.gitconfig
 
-[user]
-    name = Your Name
-    email = you@example.com
-
-[pull]
-    rebase = true
-[push]
-    autoSetupRemote = true
-[init]
-    defaultBranch = main
-[credential]
-    helper = osxkeychain
 [core]
-    editor = nvim
-    excludesfile = ~/.config/git/ignore
-    quotepath = false
     pager = delta
 [interactive]
     diffFilter = delta --color-only
-[filter "lfs"]
-    clean = git-lfs clean -- %f
-    smudge = git-lfs smudge -- %f
-    process = git-lfs filter-process
-    required = true
 
 [delta]
     navigate = true
@@ -35,9 +16,3 @@
     line-numbers = true
     decorations = commit-style box
     hide-plus-minus-markers = false
-
-[delta "catppuccin-macchiato"]
-    minus-style = syntax "#4c3a4c"
-    minus-emph-style = bold syntax "#6a485a"
-    plus-style = syntax "#3e4b4c"
-    plus-emph-style = bold syntax "#51655a"

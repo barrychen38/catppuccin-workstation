@@ -13,14 +13,13 @@ A macOS terminal workstation dressed in one theme — [Catppuccin Macchiato](htt
 | --- | --- | --- |
 | Terminal | [Ghostty](https://ghostty.org) | Catppuccin Macchiato, subtle blur, hot reload on `cmd+shift+r` |
 | Prompt | [starship](https://starship.rs) | Minimal format: directory, git branch, host (SSH only) |
-| Shell | zsh + autosuggestions / syntax-highlighting / fzf-tab | No Oh My Zsh |
-| CLI replacements | eza / bat / ripgrep / zoxide | `ls`, `cat`, `grep`, `cd` upgrades |
-| Git | [delta](https://github.com/dandavison/delta) + [lazygit](https://github.com/jesseduffield/lazygit) | Themed diffs everywhere, lazygit renders diffs through delta |
-| Editor | Neovim + [LazyVim](https://www.lazyvim.org) | Catppuccin colorscheme, plugin versions locked |
+| Shell | zsh | [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions), [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting), [fzf](https://github.com/junegunn/fzf), [fzf-tab](https://github.com/Aloxaf/fzf-tab), [zoxide](https://github.com/ajeetdsouza/zoxide) — no Oh My Zsh |
+| CLI replacements | [eza](https://github.com/eza-community/eza) / [bat](https://github.com/sharkdp/bat) / [ripgrep](https://github.com/BurntSushi/ripgrep) / zoxide | `ls`, `cat`, `grep`, `cd` upgrades |
+| Git | [delta](https://github.com/dandavison/delta) + [lazygit](https://github.com/jesseduffield/lazygit) | Themed diffs everywhere; lazygit renders diffs through delta |
+| Editor | [Neovim](https://neovim.io) + [LazyVim](https://www.lazyvim.org) | Stock LazyVim + the Catppuccin colorscheme |
 | Files | [yazi](https://github.com/sxyazi/yazi) | Catppuccin flavor, `y()` cds to the browsed directory on quit |
-| Agent workspace | [Herdr](https://herdr.dev) | Config only; install the binary from herdr.dev |
 
-Fonts: Maple Mono NF (installed via Homebrew) + Source Han Sans SC (vendored under `fonts/`, SIL OFL 1.1).
+Fonts: [Maple Mono NF](https://font.subf.dev/en/) (installed via Homebrew) + [Source Han Sans SC](https://github.com/adobe-fonts/source-han-sans) (vendored under `fonts/`, SIL OFL 1.1).
 
 ## Install
 
@@ -37,24 +36,31 @@ git clone https://github.com/barrychen38/catppuccin-workstation
 cd catppuccin-workstation && ./install.sh
 ```
 
-The installer:
+Everything is **incremental** — nothing of yours gets thrown away:
 
-1. Installs dependencies with Homebrew (`--no-brew` to skip)
-2. Backs up your existing configs to `~/.dotfiles-backup/<timestamp>/`
-3. Installs every config (Ghostty, zsh, starship, bat, git, lazygit, nvim, yazi, herdr) and the Source Han Sans font
-4. Installs the Catppuccin themes for bat
-5. Bootstraps Neovim plugins headlessly
-6. Creates `~/.zshrc.local` for your secrets, proxy, and work aliases
+- `~/.zshrc` keeps its content; a small managed block is appended that sources our snippet from `~/.config/catppuccin-workstation/zshrc`
+- `~/.gitconfig` keeps its content; delta settings are merged in with `git config --global`
+- Ghostty gets a managed block appended to its config (later lines win)
+- bat config only gains the theme lines if missing
+- Files we fully own (starship.toml, lazygit, nvim, yazi flavor) are backed up to `~/.dotfiles-backup/<timestamp>/` before being replaced
+- The installer also installs dependencies via Homebrew (`--no-brew` to skip), the Source Han Sans font, Catppuccin themes for bat, and bootstraps Neovim plugins headlessly
 
-After install: set your git identity (`git config --global user.name/email`) and open a new terminal window.
+The setup targets zsh (the macOS default). If your login shell is something else, the installer will tell you how to switch (`chsh -s /bin/zsh`).
 
-## What is deliberately not included
+## Tools & links
 
-Secrets, proxy settings, and personal aliases never enter this repo. They belong in `~/.zshrc.local`, which the repo's `~/.zshrc` sources at the end. See `config/zsh/zshrc.local.example`.
+- Theme: [Catppuccin](https://catppuccin.com) · [catppuccin/delta](https://github.com/catppuccin/delta) · [catppuccin/bat](https://github.com/catppuccin/bat) · [catppuccin/yazi](https://github.com/catppuccin/yazi)
+- Terminal: [Ghostty](https://ghostty.org)
+- Prompt & shell: [starship](https://starship.rs) · [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions) · [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting) · [fzf](https://github.com/junegunn/fzf) · [fzf-tab](https://github.com/Aloxaf/fzf-tab) · [zoxide](https://github.com/ajeetdsouza/zoxide)
+- CLI: [eza](https://github.com/eza-community/eza) · [bat](https://github.com/sharkdp/bat) · [ripgrep](https://github.com/BurntSushi/ripgrep)
+- Git: [git-delta](https://github.com/dandavison/delta) · [lazygit](https://github.com/jesseduffield/lazygit)
+- Editor: [Neovim](https://neovim.io) · [LazyVim](https://www.lazyvim.org)
+- Files: [yazi](https://github.com/sxyazi/yazi)
+- Fonts: [Maple Mono](https://font.subf.dev/en/) · [Source Han Sans](https://github.com/adobe-fonts/source-han-sans)
 
 ## Rollback
 
-Every install moves replaced files to `~/.dotfiles-backup/<timestamp>/`. To undo, copy them back.
+Replaced files are moved to `~/.dotfiles-backup/<timestamp>/`. The zsh and gitconfig changes can be undone by deleting the `# >>> catppuccin-workstation >>>` block from `~/.zshrc` and unsetting the delta keys.
 
 ## License
 
